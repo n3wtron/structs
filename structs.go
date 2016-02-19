@@ -80,7 +80,7 @@ func (s *Struct) Map() map[string]interface{} {
 	for _, field := range fields {
 		name := field.Name
 		val := s.value.FieldByName(name)
-
+		isSubStruct := false
 		var finalVal interface{}
 
 		tagName, tagOpts := parseTag(field.Tag.Get(s.TagName))
@@ -105,6 +105,7 @@ func (s *Struct) Map() map[string]interface{} {
 			n := New(val.Interface())
 			n.TagName = s.TagName
 			m := n.Map()
+			isSubStruct = true
 			if len(m) == 0 {
 				finalVal = val.Interface()
 			} else {
@@ -121,8 +122,13 @@ func (s *Struct) Map() map[string]interface{} {
 			}
 			continue
 		}
-
-		out[name] = finalVal
+		if isSubStruct && field.Anonymous {
+			for k := range finalVal.(map[string]interface{}) {
+				out[k] = finalVal.(map[string]interface{})[k]
+			}
+		} else {
+			out[name] = finalVal
+		}
 	}
 
 	return out
