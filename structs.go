@@ -122,7 +122,7 @@ func (s *Struct) Map() map[string]interface{} {
 			}
 			continue
 		}
-		if isSubStruct && field.Anonymous {
+		if isSubStruct && tagOpts.Has("flatnested") {
 			for k := range finalVal.(map[string]interface{}) {
 				out[k] = finalVal.(map[string]interface{})[k]
 			}
