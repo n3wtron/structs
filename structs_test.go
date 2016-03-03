@@ -370,7 +370,7 @@ func TestMap_FlatnestedNoOverwrite(t *testing.T) {
 			t.Errorf("The code has to panic for overwrite field")
 		}
 	}()
-	m := Map(b)
+	Map(b)
 }
 
 func TestMap_TimeField(t *testing.T) {
