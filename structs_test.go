@@ -348,8 +348,8 @@ func TestMap_FlatnestedOverwrite(t *testing.T) {
 	if !reflect.DeepEqual(m, expectedMap) {
 		t.Errorf("The exprected map %+v does't correspond to %+v", expectedMap, m)
 	}
-
 }
+
 func TestMap_FlatnestedNoOverwrite(t *testing.T) {
 	type A struct {
 		Name string
@@ -371,6 +371,36 @@ func TestMap_FlatnestedNoOverwrite(t *testing.T) {
 		}
 	}()
 	Map(b)
+}
+
+func TestMap_FlatnestedNoOverwriteMultipleAnonymousFields(t *testing.T) {
+	type A struct {
+		Name string
+	}
+	a := A{Name: "example"}
+
+	type B struct {
+		BVal int
+		Name string
+	}
+
+	type C struct {
+		A    `structs:",flatnestedNoOverwrite"`
+		B    `structs:",flatnestedNoOverwrite"`
+		CVal int
+		Name string
+	}
+
+	b := B{BVal: 123, Name: "bName"}
+	c := &C{CVal: 444, Name: "cName"}
+	c.A = a
+	c.B = b
+	defer func() {
+		if r := recover(); r == nil {
+			t.Errorf("The code has to panic for overwrite field")
+		}
+	}()
+	Map(c)
 }
 
 func TestMap_TimeField(t *testing.T) {
