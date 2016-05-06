@@ -77,7 +77,7 @@ func (s *Struct) Map() map[string]interface{} {
 
 	fields := s.structFields()
 
-	//used to check duplicated fields in flatnestedNoOverwrite tag
+	// used to check duplicated fields in flatnestedNoOverwrite tag
 	anonymousFlatFields := make(map[string]struct{})
 	for _, field := range fields {
 		name := field.Name
