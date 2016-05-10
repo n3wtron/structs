@@ -87,8 +87,6 @@ func (s *Struct) FillMap(out map[string]interface{}) {
 
 	fields := s.structFields()
 
-	// used to check duplicated fields in flatnestedNoOverwrite tag
-	anonymousFlatFields := make(map[string]struct{})
 	for _, field := range fields {
 		name := field.Name
 		val := s.value.FieldByName(name)
@@ -135,22 +133,11 @@ func (s *Struct) FillMap(out map[string]interface{}) {
 			continue
 		}
 
-		if isSubStruct && (tagOpts.Has("flatnested") || tagOpts.Has("flatnestedNoOverwrite")) {
+		if isSubStruct && (tagOpts.Has("flatten")) {
 			for k := range finalVal.(map[string]interface{}) {
-				if tagOpts.Has("flatnestedNoOverwrite") {
-					_, alreadyPresent := out[k]
-					anonymousFlatFields[k] = struct{}{}
-					if alreadyPresent {
-						panic("field " + k + " has been overwritten and flatnestedNoOverwrite tag is present")
-					}
-				}
 				out[k] = finalVal.(map[string]interface{})[k]
 			}
 		} else {
-			_, alreadyPresent := anonymousFlatFields[name]
-			if alreadyPresent {
-				panic("field \"" + name + "\" has been overwritten and flatnestedNoOverwrite tag is present")
-			}
 			out[name] = finalVal
 		}
 	}

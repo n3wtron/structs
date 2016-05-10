@@ -303,7 +303,7 @@ func TestMap_Flatnested(t *testing.T) {
 	a := A{Name: "example"}
 
 	type B struct {
-		A `structs:",flatnested"`
+		A `structs:",flatten"`
 		C int
 	}
 	b := &B{C: 123}
@@ -313,7 +313,7 @@ func TestMap_Flatnested(t *testing.T) {
 
 	_, ok := m["A"].(map[string]interface{})
 	if ok {
-		t.Error("Embedded A struct with tag flatnested has to be flat in the map")
+		t.Error("Embedded A struct with tag flatten has to be flat in the map")
 	}
 
 	expectedMap := map[string]interface{}{"Name": "example", "C": 123}
@@ -330,7 +330,7 @@ func TestMap_FlatnestedOverwrite(t *testing.T) {
 	a := A{Name: "example"}
 
 	type B struct {
-		A    `structs:",flatnested"`
+		A    `structs:",flatten"`
 		Name string
 		C    int
 	}
@@ -341,66 +341,13 @@ func TestMap_FlatnestedOverwrite(t *testing.T) {
 
 	_, ok := m["A"].(map[string]interface{})
 	if ok {
-		t.Error("Embedded A struct with tag flatnested has to be flat in the map")
+		t.Error("Embedded A struct with tag flatten has to be flat in the map")
 	}
 
 	expectedMap := map[string]interface{}{"Name": "bName", "C": 123}
 	if !reflect.DeepEqual(m, expectedMap) {
 		t.Errorf("The exprected map %+v does't correspond to %+v", expectedMap, m)
 	}
-}
-
-func TestMap_FlatnestedNoOverwrite(t *testing.T) {
-	type A struct {
-		Name string
-	}
-	a := A{Name: "example"}
-
-	type B struct {
-		A    `structs:",flatnestedNoOverwrite"`
-		Name string
-		C    int
-	}
-	b := &B{C: 123}
-	b.A = a
-	b.Name = "exampleOverwrite"
-
-	defer func() {
-		if r := recover(); r == nil {
-			t.Errorf("The code has to panic for overwrite field")
-		}
-	}()
-	Map(b)
-}
-
-func TestMap_FlatnestedNoOverwriteMultipleAnonymousFields(t *testing.T) {
-	type A struct {
-		Name string
-	}
-	a := A{Name: "example"}
-
-	type B struct {
-		BVal int
-		Name string
-	}
-
-	type C struct {
-		A    `structs:",flatnestedNoOverwrite"`
-		B    `structs:",flatnestedNoOverwrite"`
-		CVal int
-		Name string
-	}
-
-	b := B{BVal: 123, Name: "bName"}
-	c := &C{CVal: 444, Name: "cName"}
-	c.A = a
-	c.B = b
-	defer func() {
-		if r := recover(); r == nil {
-			t.Errorf("The code has to panic for overwrite field")
-		}
-	}()
-	Map(c)
 }
 
 func TestMap_TimeField(t *testing.T) {
